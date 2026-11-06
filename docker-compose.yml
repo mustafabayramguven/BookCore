@@ -1,0 +1,18 @@
+services:
+  bookcore:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bookcore
+    restart: unless-stopped
+    ports:
+      - "3435:3435"
+    environment:
+      - PORT=3435
+      - BOOKCORE_DB_PATH=/data/bookcore.db
+      - BOOKCORE_BOOKS_DIR=/books
+      - BOOKCORE_CACHE_DIR=/data/cache
+      - RUST_LOG=bookcore=info,tower_http=info
+    volumes:
+      - ./data:/data
+      - ./books:/books

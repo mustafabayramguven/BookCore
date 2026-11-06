@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BookCore — Personal Book & Comic Server</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><path d='M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25'/></svg>">
+  <style>
+    :root {
+      --bg-base: #09090b;
+      --bg-surface: #121217;
+      --bg-elevated: #1c1c24;
+      --bg-card: #18181f;
+      --border-subtle: #272732;
+      --border-strong: #3f3f50;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-subtle: rgba(99, 102, 241, 0.15);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.4);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.5);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Common Components */
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+    input, select {
+      font-family: inherit;
+      outline: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 500;
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+    }
+    .btn:hover {
+      background: var(--border-subtle);
+      border-color: var(--border-strong);
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-icon {
+      padding: 8px;
+      border-radius: var(--radius-sm);
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-cbz { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-epub { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-pdf { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    /* Top Navigation Bar */
+    header.topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 24px;
+      background: rgba(18, 18, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5);
+    }
+
+    .search-filter-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      max-width: 600px;
+    }
+    .search-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    .search-input-wrapper svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 14px;
+    }
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+    }
+    .pill {
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 9999px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .pill.active {
+      background: var(--primary-subtle);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Library Content Grid */
+    main.library-container {
+      flex: 1;
+      padding: 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .library-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .book-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .book-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-md);
+    }
+    .cover-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      background: #0f0f13;
+      overflow: hidden;
+    }
+    .cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.2s ease;
+    }
+    .book-card:hover .cover-img {
+      transform: scale(1.03);
+    }
+    .badge-overlay {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+    }
+    .card-info {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .card-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .card-progress-bar-wrap {
+      margin-top: auto;
+      padding-top: 8px;
+    }
+    .progress-bar-track {
+      width: 100%;
+      height: 4px;
+      background: var(--border-subtle);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-dim);
+    }
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      color: var(--border-strong);
+    }
+
+    /* Modal Dialogs */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-dialog {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 650px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+    }
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    /* Stats & Streak Modal Content */
+    .streak-banner {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15));
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .streak-flame {
+      font-size: 40px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    .streak-count {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fbbf24;
+    }
+    .streak-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .stats-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .chart-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 120px;
+      padding-top: 20px;
+    }
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .bar {
+      width: 100%;
+      max-width: 28px;
+      background: var(--primary);
+      border-radius: 4px 4px 0 0;
+      transition: height 0.3s ease;
+      min-height: 4px;
+    }
+    .bar.goal-met {
+      background: #10b981;
+    }
+    .bar-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 6px;
+    }
+
+    .sessions-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .sessions-table th {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .sessions-table td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* FULLSCREEN READER OVERLAY */
+    .reader-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #000;
+      z-index: 90;
+      display: none;
+      flex-direction: column;
+      user-select: none;
+    }
+    .reader-overlay.active {
+      display: flex;
+    }
+
+    /* Reader Header Bar */
+    .reader-header {
+      height: 56px;
+      background: rgba(15, 15, 20, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      gap: 12px;
+      z-index: 95;
+    }
+    .reader-title-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .reader-book-title {
+      font-size: 15px;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Timer Widget in Reader Header */
+    .timer-widget {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      padding: 4px 12px 4px 6px;
+    }
+    .timer-ring-container {
+      position: relative;
+      width: 28px;
+      height: 28px;
+    }
+    .timer-ring-svg {
+      transform: rotate(-90deg);
+      width: 28px;
+      height: 28px;
+    }
+    .timer-ring-bg {
+      stroke: var(--border-strong);
+      stroke-width: 3;
+      fill: none;
+    }
+    .timer-ring-progress {
+      stroke: var(--primary);
+      stroke-width: 3;
+      stroke-linecap: round;
+      fill: none;
+      transition: stroke-dashoffset 0.3s ease;
+    }
+    .timer-ring-progress.pomodoro {
+      stroke: #f59e0b;
+    }
+    .timer-ring-progress.completed {
+      stroke: #10b981;
+    }
+    .timer-label {
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+    .status-indicator.paused {
+      background: #f59e0b;
+    }
+
+    /* Reader Main Stage */
+    .reader-stage {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #000;
+    }
+
+    /* Manga / CBZ View */
+    .cbz-stage {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .cbz-page-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      user-select: none;
+    }
+    .fit-width .cbz-page-img {
+      width: 100%;
+      height: auto;
+      max-height: none;
+    }
+    .fit-height .cbz-page-img {
+      height: 100%;
+      width: auto;
+      max-width: none;
+    }
+    .fit-original .cbz-page-img {
+      max-width: none;
+      max-height: none;
+    }
+
+    /* Clickable Page Turn Zones */
+    .touch-zone {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 25%;
+      z-index: 10;
+      cursor: pointer;
+    }
+    .touch-zone-left { left: 0; }
+    .touch-zone-right { right: 0; }
+
+    /* Reader Bottom Scrubber */
+    .reader-bottombar {
+      height: 52px;
+      background: rgba(15, 15, 20, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      gap: 16px;
+      z-index: 95;
+    }
+    .scrubber-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .page-scrubber {
+      flex: 1;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .page-counter {
+      font-size: 13px;
+      font-family: monospace;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* EPUB Stage & Controls */
+    .epub-stage {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+      background: #111116;
+    }
+    .epub-content-container {
+      max-width: 750px;
+      width: 100%;
+      font-size: 18px;
+      line-height: 1.7;
+      color: #e4e4e7;
+    }
+    .epub-theme-sepia {
+      background: #fbf0d9 !important;
+      color: #433422 !important;
+    }
+    .epub-theme-sepia .epub-content-container {
+      color: #433422 !important;
+    }
+    .epub-theme-light {
+      background: #ffffff !important;
+      color: #18181b !important;
+    }
+    .epub-theme-light .epub-content-container {
+      color: #18181b !important;
+    }
+
+    /* PDF Stage */
+    .pdf-stage {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .pdf-embed {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Bookmarks Drawer */
+    .drawer-backdrop {
+      position: absolute;
+      top: 56px; right: 0; bottom: 52px;
+      width: 320px;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border-subtle);
+      z-index: 98;
+      display: none;
+      flex-direction: column;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    }
+    .drawer-backdrop.open {
+      display: flex;
+    }
+    .drawer-header {
+      padding: 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 600;
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    .bookmark-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .bookmark-item:hover {
+      border-color: var(--primary);
+    }
+
+    /* Idle / Inactivity Overlay */
+    .idle-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 99;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+    .idle-overlay.active {
+      display: flex;
+    }
+    .idle-icon {
+      font-size: 48px;
+    }
+    .idle-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .idle-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      color: #fff;
+      font-size: 14px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.2s ease;
+    }
+    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .search-filter-box { max-width: 100%; }
+      .pill span { display: none; }
+      .stats-cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="topbar">
+    <div class="brand" onclick="window.location.reload()">
+      <div class="brand-logo">B</div>
+      <span>BookCore</span>
+    </div>
+
+    <div class="search-filter-box">
+      <div class="search-input-wrapper">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search books, series, comics...">
+      </div>
+
+      <div class="filter-pills">
+        <button class="pill active" data-format="">All</button>
+        <button class="pill" data-format="CBZ">CBZ</button>
+        <button class="pill" data-format="EPUB">EPUB</button>
+        <button class="pill" data-format="PDF">PDF</button>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="scanBtn" class="btn" title="Scan reading directories">
+        <svg id="scanIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+        <span>Scan</span>
+      </button>
+
+      <button id="statsBtn" class="btn btn-primary" title="Reading stats, Pomodoro & Streaks">
+        <span>🔥</span>
+        <span id="headerStreakLabel">Stats</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Library Grid View -->
+  <main class="library-container">
+    <div id="booksGrid" class="library-grid">
+      <!-- Injected dynamically via app.js -->
+    </div>
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>
+      <h3>No books found</h3>
+      <p style="margin-top: 6px;">Add CBZ, EPUB, or PDF files to your library directory and click "Scan".</p>
+    </div>
+  </main>
+
+  <!-- Fullscreen Reader View -->
+  <div id="readerOverlay" class="reader-overlay">
+    <!-- Reader Top Bar -->
+    <div class="reader-header">
+      <div class="reader-title-box">
+        <button id="closeReaderBtn" class="btn btn-icon" title="Exit Reader">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <span id="readerTitle" class="reader-book-title">Book Title</span>
+        <span id="readerBadge" class="badge">CBZ</span>
+      </div>
+
+      <!-- Timer & Tracker Top Bar Widget -->
+      <div class="timer-widget">
+        <div class="timer-ring-container" id="timerRingToggle" title="Click to toggle Pomodoro / Daily Goal">
+          <svg class="timer-ring-svg" viewBox="0 0 36 36">
+            <circle class="timer-ring-bg" cx="18" cy="18" r="14" />
+            <circle id="timerProgressRing" class="timer-ring-progress" cx="18" cy="18" r="14" stroke-dasharray="87.96" stroke-dashoffset="0" />
+          </svg>
+        </div>
+        <span id="timerText" class="timer-label">00:00</span>
+        <div id="timerStatusDot" class="status-indicator" title="Active"></div>
+      </div>
+
+      <div style="display: flex; gap: 6px;">
+        <button id="toggleBookmarksBtn" class="btn btn-icon" title="Bookmarks (B)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        </button>
+        <button id="fitToggleBtn" class="btn btn-icon" title="Toggle Fit Mode">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Reader Active Content Stage -->
+    <div class="reader-stage" id="readerStage">
+      <!-- CBZ View -->
+      <div id="cbzStage" class="cbz-stage fit-height" style="display: none;">
+        <div class="touch-zone touch-zone-left" id="zonePrev"></div>
+        <img id="cbzImage" class="cbz-page-img" alt="Page View">
+        <div class="touch-zone touch-zone-right" id="zoneNext"></div>
+      </div>
+
+      <!-- EPUB View -->
+      <div id="epubStage" class="epub-stage" style="display: none;">
+        <div id="epubContent" class="epub-content-container"></div>
+      </div>
+
+      <!-- PDF View -->
+      <div id="pdfStage" class="pdf-stage" style="display: none;">
+        <embed id="pdfEmbed" class="pdf-embed" type="application/pdf">
+      </div>
+
+      <!-- Inactivity Idle Overlay -->
+      <div id="idleOverlay" class="idle-overlay">
+        <div class="idle-icon">⏸️</div>
+        <div class="idle-text">Reading Paused Due to Inactivity</div>
+        <div class="idle-sub">Click anywhere or press any key to resume timer</div>
+      </div>
+    </div>
+
+    <!-- Reader Bottom Scrubber -->
+    <div class="reader-bottombar">
+      <button id="prevBtn" class="btn btn-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+
+      <div class="scrubber-group">
+        <input type="range" id="pageScrubber" class="page-scrubber" min="0" max="100" value="0">
+        <span id="pageDisplay" class="page-counter">Page 1 / 1</span>
+      </div>
+
+      <button id="nextBtn" class="btn btn-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <!-- Bookmarks Drawer -->
+    <div id="bookmarksDrawer" class="drawer-backdrop">
+      <div class="drawer-header">
+        <span>Bookmarks</span>
+        <button id="addBookmarkBtn" class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;">+ Add Current</button>
+      </div>
+      <div id="bookmarksList" class="drawer-body">
+        <!-- Bookmark items injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats & Streak Analytics Modal -->
+  <div id="statsModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Reading Telemetry & Streaks</h3>
+        <button id="closeStatsBtn" class="btn btn-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="streak-banner">
+          <div class="streak-flame">🔥</div>
+          <div>
+            <div id="modalStreakDays" class="streak-count">0 Day Streak!</div>
+            <div id="modalLongestStreak" class="streak-sub">Longest Streak: 0 days</div>
+          </div>
+        </div>
+
+        <div class="stats-cards-grid">
+          <div class="stat-box">
+            <div id="statPpm" class="stat-val">0.0</div>
+            <div class="stat-label">Pages / Min (PPM)</div>
+          </div>
+          <div class="stat-box">
+            <div id="statHours" class="stat-val">0.0h</div>
+            <div class="stat-label">Total Read Time</div>
+          </div>
+          <div class="stat-box">
+            <div id="statPages" class="stat-val">0</div>
+            <div class="stat-label">Total Pages Turned</div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <div class="chart-title">
+            <span>Daily Reading Activity (Last 14 Days)</span>
+            <span id="todayGoalLabel" style="font-size: 12px; color: var(--primary);">Goal: 30m</span>
+          </div>
+          <div id="chartBars" class="chart-bars">
+            <!-- Dynamically generated bars -->
+          </div>
+        </div>
+
+        <h4 style="font-size: 14px; margin-bottom: 12px;">Recent Sessions</h4>
+        <div style="overflow-x: auto;">
+          <table class="sessions-table">
+            <thead>
+              <tr>
+                <th>Book</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Pages</th>
+                <th>PPM</th>
+              </tr>
+            </thead>
+            <tbody id="sessionsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Application Logic -->
+  <script>
+    // --- Audio Synthesis for Pomodoro Focus Chime (Zero external mp3 files) ---
+    function playChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880.00, ctx.currentTime + 0.3); // A5
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.8);
+      } catch (e) {
+        console.warn('AudioContext chime error:', e);
+      }
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // --- State Management ---
+    const state = {
+      books: [],
+      currentFilter: '',
+      searchQuery: '',
+      activeBook: null,
+      currentPage: 0,
+      totalPages: 1,
+      epubChapters: [],
+      currentChapterIdx: 0,
+      fitMode: 'fit-height', // fit-height, fit-width, fit-original
+
+      // Timer & Tracker
+      sessionId: null,
+      timerActive: false,
+      isPomodoro: false,
+      goalMinutes: 30,
+      pomodoroMinutes: 25,
+      sessionElapsedSeconds: 0,
+      idleCounter: 0,
+      heartbeatTimer: null,
+      idleChecker: null
+    };
+
+    // --- DOM Elements ---
+    const booksGrid = document.getElementById('booksGrid');
+    const emptyState = document.getElementById('emptyState');
+    const searchInput = document.getElementById('searchInput');
+    const scanBtn = document.getElementById('scanBtn');
+    const scanIcon = document.getElementById('scanIcon');
+    const statsBtn = document.getElementById('statsBtn');
+    const statsModal = document.getElementById('statsModal');
+    const closeStatsBtn = document.getElementById('closeStatsBtn');
+    const readerOverlay = document.getElementById('readerOverlay');
+    const closeReaderBtn = document.getElementById('closeReaderBtn');
+    const readerTitle = document.getElementById('readerTitle');
+    const readerBadge = document.getElementById('readerBadge');
+    const cbzStage = document.getElementById('cbzStage');
+    const cbzImage = document.getElementById('cbzImage');
+    const epubStage = document.getElementById('epubStage');
+    const epubContent = document.getElementById('epubContent');
+    const pdfStage = document.getElementById('pdfStage');
+    const pdfEmbed = document.getElementById('pdfEmbed');
+    const pageScrubber = document.getElementById('pageScrubber');
+    const pageDisplay = document.getElementById('pageDisplay');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const fitToggleBtn = document.getElementById('fitToggleBtn');
+    const timerProgressRing = document.getElementById('timerProgressRing');
+    const timerText = document.getElementById('timerText');
+    const timerStatusDot = document.getElementById('timerStatusDot');
+    const timerRingToggle = document.getElementById('timerRingToggle');
+    const idleOverlay = document.getElementById('idleOverlay');
+    const toggleBookmarksBtn = document.getElementById('toggleBookmarksBtn');
+    const bookmarksDrawer = document.getElementById('bookmarksDrawer');
+    const addBookmarkBtn = document.getElementById('addBookmarkBtn');
+    const bookmarksList = document.getElementById('bookmarksList');
+
+    // --- Library Fetch & Render ---
+    async function fetchBooks() {
+      try {
+        let url = `/api/books?`;
+        if (state.currentFilter) url += `format=${encodeURIComponent(state.currentFilter)}&`;
+        if (state.searchQuery) url += `query=${encodeURIComponent(state.searchQuery)}&`;
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to fetch books');
+        state.books = await res.json();
+        renderBooks();
+      } catch (err) {
+        console.error('Fetch books error:', err);
+      }
+    }
+
+    function renderBooks() {
+      booksGrid.innerHTML = '';
+      if (state.books.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+      }
+      emptyState.style.display = 'none';
+
+      state.books.forEach(book => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.onclick = () => openReader(book);
+
+        const badgeClass = `badge-${book.format.toLowerCase()}`;
+        const pct = book.progress_percent || 0;
+
+        card.innerHTML = `
+          <div class="cover-container">
+            <img class="cover-img" src="/api/books/${book.id}/cover" loading="lazy" alt="${book.title}">
+            <div class="badge-overlay">
+              <span class="badge ${badgeClass}">${book.format}</span>
+            </div>
+          </div>
+          <div class="card-info">
+            <div class="card-title" title="${book.title}">${book.title}</div>
+            <div class="card-meta">${book.series ? book.series + (book.volume ? ' Vol. ' + book.volume : '') : (book.page_count ? book.page_count + ' pages' : '')}</div>
+            <div class="card-progress-bar-wrap">
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+        booksGrid.appendChild(card);
+      });
+    }
+
+    // --- Filter Pills & Search ---
+    document.querySelectorAll('.filter-pills .pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.filter-pills .pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        state.currentFilter = pill.dataset.format;
+        fetchBooks();
+      });
+    });
+
+    let searchDebounce;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => {
+        state.searchQuery = e.target.value.trim();
+        fetchBooks();
+      }, 250);
+    });
+
+    // --- Scan Library ---
+    scanBtn.addEventListener('click', async () => {
+      scanIcon.style.animation = 'spin 1s linear infinite';
+      try {
+        const res = await fetch('/api/scan', { method: 'POST' });
+        const data = await res.json();
+        showToast(`Scan complete: ${data.scanned_files} files scanned (+${data.added_books} added)`);
+        await fetchBooks();
+        await updateStreakBadge();
+      } catch (err) {
+        showToast('Scan failed: ' + err.message);
+      } finally {
+        scanIcon.style.animation = '';
+      }
+    });
+
+    // --- Reader Mode ---
+    async function openReader(bookSummary) {
+      state.activeBook = bookSummary;
+      state.currentPage = bookSummary.current_page || 0;
+      state.totalPages = bookSummary.page_count || 1;
+
+      readerTitle.textContent = bookSummary.title;
+      readerBadge.textContent = bookSummary.format;
+      readerBadge.className = `badge badge-${bookSummary.format.toLowerCase()}`;
+
+      cbzStage.style.display = 'none';
+      epubStage.style.display = 'none';
+      pdfStage.style.display = 'none';
+
+      readerOverlay.classList.add('active');
+
+      if (bookSummary.format === 'CBZ') {
+        cbzStage.style.display = 'flex';
+        pageScrubber.max = Math.max(0, state.totalPages - 1);
+        updateCbzPage(state.currentPage);
+      } else if (bookSummary.format === 'EPUB') {
+        epubStage.style.display = 'flex';
+        // Fetch chapters
+        const res = await fetch(`/api/books/${bookSummary.id}/chapters`);
+        state.epubChapters = await res.json();
+        state.currentChapterIdx = 0;
+        loadEpubChapter(0);
+      } else if (bookSummary.format === 'PDF') {
+        pdfStage.style.display = 'flex';
+        pdfEmbed.src = `/api/books/${bookSummary.id}/raw#page=${state.currentPage + 1}`;
+        pageScrubber.max = Math.max(0, state.totalPages - 1);
+        updateScrubberUI();
+      }
+
+      startReadingSession(bookSummary.id, state.currentPage);
+    }
+
+    function closeReader() {
+      stopReadingSession();
+      readerOverlay.classList.remove('active');
+      bookmarksDrawer.classList.remove('open');
+      state.activeBook = null;
+      fetchBooks();
+      updateStreakBadge();
+    }
+    closeReaderBtn.addEventListener('click', closeReader);
+
+    // --- CBZ Navigation ---
+    function updateCbzPage(pageNum) {
+      if (!state.activeBook) return;
+      state.currentPage = Math.max(0, Math.min(pageNum, state.totalPages - 1));
+      cbzImage.src = `/api/books/${state.activeBook.id}/pages/${state.currentPage}`;
+      updateScrubberUI();
+      saveProgress(state.activeBook.id, state.currentPage);
+    }
+
+    function updateScrubberUI() {
+      pageScrubber.value = state.currentPage;
+      pageDisplay.textContent = `Page ${state.currentPage + 1} / ${state.totalPages}`;
+    }
+
+    pageScrubber.addEventListener('input', (e) => {
+      const page = parseInt(e.target.value, 10);
+      if (state.activeBook.format === 'CBZ') {
+        updateCbzPage(page);
+      } else if (state.activeBook.format === 'PDF') {
+        state.currentPage = page;
+        pdfEmbed.src = `/api/books/${state.activeBook.id}/raw#page=${state.currentPage + 1}`;
+        updateScrubberUI();
+        saveProgress(state.activeBook.id, state.currentPage);
+      }
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (state.activeBook.format === 'CBZ') updateCbzPage(state.currentPage - 1);
+      else if (state.activeBook.format === 'EPUB') loadEpubChapter(state.currentChapterIdx - 1);
+    });
+    nextBtn.addEventListener('click', () => {
+      if (state.activeBook.format === 'CBZ') updateCbzPage(state.currentPage + 1);
+      else if (state.activeBook.format === 'EPUB') loadEpubChapter(state.currentChapterIdx + 1);
+    });
+
+    document.getElementById('zonePrev').addEventListener('click', () => updateCbzPage(state.currentPage - 1));
+    document.getElementById('zoneNext').addEventListener('click', () => updateCbzPage(state.currentPage + 1));
+
+    // Fit mode toggle
+    fitToggleBtn.addEventListener('click', () => {
+      if (state.fitMode === 'fit-height') {
+        state.fitMode = 'fit-width';
+        cbzStage.className = 'cbz-stage fit-width';
+        showToast('Fit to Width');
+      } else if (state.fitMode === 'fit-width') {
+        state.fitMode = 'fit-original';
+        cbzStage.className = 'cbz-stage fit-original';
+        showToast('Original Size');
+      } else {
+        state.fitMode = 'fit-height';
+        cbzStage.className = 'cbz-stage fit-height';
+        showToast('Fit to Height');
+      }
+    });
+
+    // --- EPUB Chapter Loading ---
+    async function loadEpubChapter(chapterIdx) {
+      if (!state.activeBook || state.epubChapters.length === 0) return;
+      state.currentChapterIdx = Math.max(0, Math.min(chapterIdx, state.epubChapters.length - 1));
+      const res = await fetch(`/api/books/${state.activeBook.id}/chapters/${state.currentChapterIdx}`);
+      if (res.ok) {
+        const html = await res.text();
+        epubContent.innerHTML = html;
+        epubStage.scrollTop = 0;
+        state.currentPage = state.currentChapterIdx;
+        state.totalPages = state.epubChapters.length;
+        pageScrubber.max = state.totalPages - 1;
+        updateScrubberUI();
+        saveProgress(state.activeBook.id, state.currentChapterIdx);
+      }
+    }
+
+    // --- Progress Persistence ---
+    async function saveProgress(bookId, page) {
+      try {
+        await fetch(`/api/books/${bookId}/progress`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ page, is_finished: page >= (state.totalPages - 1) })
+        });
+      } catch (e) {
+        console.warn('Save progress error:', e);
+      }
+    }
+
+    // --- Reading Timer & Tracker Engine ---
+    async function startReadingSession(bookId, page) {
+      try {
+        const res = await fetch('/api/timer/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            book_id: bookId,
+            current_page: page,
+            is_pomodoro: state.isPomodoro,
+            goal_minutes: state.isPomodoro ? state.pomodoroMinutes : state.goalMinutes
+          })
+        });
+        const data = await res.json();
+        state.sessionId = data.session_id;
+        state.timerActive = true;
+        state.sessionElapsedSeconds = 0;
+        state.idleCounter = 0;
+        updateTimerRing();
+
+        clearInterval(state.heartbeatTimer);
+        state.heartbeatTimer = setInterval(sendHeartbeat, 15000);
+
+        clearInterval(state.idleChecker);
+        state.idleChecker = setInterval(checkIdleStatus, 1000);
+      } catch (err) {
+        console.error('Start session error:', err);
+      }
+    }
+
+    async function sendHeartbeat() {
+      if (!state.timerActive || !state.sessionId) return;
+      try {
+        const res = await fetch('/api/timer/heartbeat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: state.sessionId,
+            current_page: state.currentPage,
+            delta_seconds: 15
+          })
+        });
+        const data = await res.json();
+        state.sessionElapsedSeconds = data.active_seconds;
+        updateTimerRing();
+      } catch (err) {
+        console.warn('Heartbeat error:', err);
+      }
+    }
+
+    async function pauseReadingSession() {
+      if (!state.timerActive || !state.sessionId) return;
+      state.timerActive = false;
+      timerStatusDot.classList.add('paused');
+      timerStatusDot.title = 'Paused (Idle)';
+      try {
+        await fetch('/api/timer/pause', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: state.sessionId })
+        });
+      } catch (err) {
+        console.warn('Pause error:', err);
+      }
+    }
+
+    function resumeReadingSession() {
+      if (state.timerActive) return;
+      state.timerActive = true;
+      state.idleCounter = 0;
+      timerStatusDot.classList.remove('paused');
+      timerStatusDot.title = 'Active';
+      idleOverlay.classList.remove('active');
+      sendHeartbeat();
+    }
+
+    async function stopReadingSession() {
+      clearInterval(state.heartbeatTimer);
+      clearInterval(state.idleChecker);
+      if (state.sessionId) {
+        try {
+          await fetch('/api/timer/stop', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: state.sessionId, final_page: state.currentPage })
+          });
+        } catch (err) {
+          console.warn('Stop session error:', err);
+        }
+        state.sessionId = null;
+        state.timerActive = false;
+      }
+    }
+
+    // Activity, Visibility, and Idle Detectors
+    function resetActivity() {
+      state.idleCounter = 0;
+      if (!state.timerActive && readerOverlay.classList.contains('active')) {
+        resumeReadingSession();
+      }
+    }
+
+    ['mousemove', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
+      window.addEventListener(evt, resetActivity, { passive: true });
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        pauseReadingSession();
+      } else if (readerOverlay.classList.contains('active')) {
+        resumeReadingSession();
+      }
+    });
+
+    function checkIdleStatus() {
+      if (!state.timerActive) return;
+      state.idleCounter += 1;
+      state.sessionElapsedSeconds += 1;
+      updateTimerRing();
+
+      // 60-second inactivity pause
+      if (state.idleCounter >= 60) {
+        pauseReadingSession();
+        idleOverlay.classList.add('active');
+      }
+    }
+
+    idleOverlay.addEventListener('click', resumeReadingSession);
+
+    // Pomodoro / Goal Ring update
+    function updateTimerRing() {
+      const circ = 2 * Math.PI * 14; // 87.96
+      const targetSecs = (state.isPomodoro ? state.pomodoroMinutes : state.goalMinutes) * 60;
+      const progress = Math.min(1.0, state.sessionElapsedSeconds / targetSecs);
+      const offset = circ * (1 - progress);
+      timerProgressRing.style.strokeDashoffset = offset;
+
+      const mins = Math.floor(state.sessionElapsedSeconds / 60);
+      const secs = state.sessionElapsedSeconds % 60;
+      timerText.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+      if (state.isPomodoro) {
+        timerProgressRing.className = 'timer-ring-progress pomodoro';
+        if (state.sessionElapsedSeconds === targetSecs) {
+          playChime();
+          showToast('🎉 Focus Interval Complete! Take a 5-minute break.');
+        }
+      } else {
+        if (progress >= 1.0) {
+          timerProgressRing.className = 'timer-ring-progress completed';
+        } else {
+          timerProgressRing.className = 'timer-ring-progress';
+        }
+      }
+    }
+
+    timerRingToggle.addEventListener('click', () => {
+      state.isPomodoro = !state.isPomodoro;
+      showToast(state.isPomodoro ? 'Switched to Pomodoro Mode (25m)' : 'Switched to Daily Goal Mode (30m)');
+      updateTimerRing();
+    });
+
+    // --- Bookmarks Drawer ---
+    toggleBookmarksBtn.addEventListener('click', () => {
+      bookmarksDrawer.classList.toggle('open');
+      if (bookmarksDrawer.classList.contains('open')) {
+        loadBookmarks();
+      }
+    });
+
+    async function loadBookmarks() {
+      if (!state.activeBook) return;
+      try {
+        const res = await fetch(`/api/books/${state.activeBook.id}/bookmarks`);
+        const bookmarks = await res.json();
+        bookmarksList.innerHTML = '';
+        if (bookmarks.length === 0) {
+          bookmarksList.innerHTML = '<div style="color: var(--text-dim); text-align: center; padding: 20px;">No bookmarks yet</div>';
+          return;
+        }
+        bookmarks.forEach(bm => {
+          const item = document.createElement('div');
+          item.className = 'bookmark-item';
+          item.innerHTML = `
+            <div>
+              <div style="font-weight: 600; font-size: 13px;">Page ${bm.page_number + 1}</div>
+              <div style="font-size: 11px; color: var(--text-dim);">${bm.title || 'Bookmark'}</div>
+            </div>
+            <button class="btn btn-icon" style="color: var(--danger);" onclick="event.stopPropagation(); deleteBookmark(${bm.id})">×</button>
+          `;
+          item.onclick = () => {
+            if (state.activeBook.format === 'CBZ') updateCbzPage(bm.page_number);
+            else if (state.activeBook.format === 'EPUB') loadEpubChapter(bm.page_number);
+          };
+          bookmarksList.appendChild(item);
+        });
+      } catch (err) {
+        console.error('Load bookmarks error:', err);
+      }
+    }
+
+    addBookmarkBtn.addEventListener('click', async () => {
+      if (!state.activeBook) return;
+      try {
+        await fetch(`/api/books/${state.activeBook.id}/bookmarks`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            page_number: state.currentPage,
+            title: `Bookmark at page ${state.currentPage + 1}`
+          })
+        });
+        showToast('Bookmark added');
+        loadBookmarks();
+      } catch (err) {
+        showToast('Failed to add bookmark');
+      }
+    });
+
+    window.deleteBookmark = async function(id) {
+      try {
+        await fetch(`/api/bookmarks/${id}`, { method: 'DELETE' });
+        loadBookmarks();
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    // --- Keyboard Navigation ---
+    window.addEventListener('keydown', (e) => {
+      if (!readerOverlay.classList.contains('active')) return;
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        prevBtn.click();
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        nextBtn.click();
+      } else if (e.key === 'b' || e.key === 'B') {
+        toggleBookmarksBtn.click();
+      } else if (e.key === 'Escape') {
+        closeReader();
+      }
+    });
+
+    // --- Stats & Streak Modal ---
+    statsBtn.addEventListener('click', async () => {
+      await openStatsModal();
+    });
+    closeStatsBtn.addEventListener('click', () => {
+      statsModal.classList.remove('open');
+    });
+
+    async function openStatsModal() {
+      try {
+        const res = await fetch('/api/timer/stats');
+        const stats = await res.json();
+
+        document.getElementById('modalStreakDays').textContent = `${stats.current_streak_days} Day Streak!`;
+        document.getElementById('modalLongestStreak').textContent = `Longest Streak: ${stats.longest_streak_days} days`;
+        document.getElementById('statPpm').textContent = stats.pages_per_minute.toFixed(2);
+        document.getElementById('statHours').textContent = `${stats.total_reading_hours}h`;
+        document.getElementById('statPages').textContent = stats.total_pages_read;
+
+        // Render Bar Chart
+        const chartBars = document.getElementById('chartBars');
+        chartBars.innerHTML = '';
+        const maxMins = Math.max(30, ...stats.recent_days.map(d => d.minutes));
+
+        stats.recent_days.forEach(day => {
+          const col = document.createElement('div');
+          col.className = 'bar-col';
+          const heightPct = Math.min(100, (day.minutes / maxMins) * 100);
+          const goalMet = day.minutes >= 30;
+          const shortDate = day.date.slice(5);
+
+          col.innerHTML = `
+            <div class="bar ${goalMet ? 'goal-met' : ''}" style="height: ${heightPct}%" title="${day.date}: ${day.minutes} mins (${day.pages} pages)"></div>
+            <div class="bar-label">${shortDate}</div>
+          `;
+          chartBars.appendChild(col);
+        });
+
+        // Populate recent sessions table
+        const tbody = document.getElementById('sessionsTableBody');
+        tbody.innerHTML = '';
+        stats.recent_sessions.forEach(s => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${s.book_title}</td>
+            <td style="color: var(--text-dim);">${s.date.slice(0, 10)}</td>
+            <td>${s.active_minutes}m</td>
+            <td>${s.pages_read}</td>
+            <td><strong>${s.ppm.toFixed(1)}</strong></td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        statsModal.classList.add('open');
+      } catch (err) {
+        console.error('Stats error:', err);
+      }
+    }
+
+    async function updateStreakBadge() {
+      try {
+        const res = await fetch('/api/timer/stats');
+        if (res.ok) {
+          const stats = await res.json();
+          document.getElementById('headerStreakLabel').textContent = `${stats.current_streak_days}d Streak`;
+        }
+      } catch (e) {
+        // silent fail
+      }
+    }
+
+    // --- Init ---
+    fetchBooks();
+    updateStreakBadge();
+  </script>
+</body>
+</html>

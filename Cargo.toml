@@ -1,0 +1,38 @@
+[package]
+name = "bookcore"
+version = "0.1.0"
+edition = "2021"
+description = "High-performance lightweight personal book & comic reading server"
+authors = ["BookCore Team"]
+
+[dependencies]
+# Async Runtime & HTTP Server
+tokio = { version = "1.41", features = ["full"] }
+axum = { version = "0.7", features = ["macros"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["cors", "trace", "fs"] }
+
+# SQLite Database
+sqlx = { version = "0.8", default-features = false, features = ["sqlite", "runtime-tokio", "macros", "chrono", "uuid"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Archives & XML Parsing (Pure Rust)
+zip = { version = "2.2", default-features = false, features = ["deflate"] }
+roxmltree = "0.20"
+
+# Utilities & System
+walkdir = "2.5"
+uuid = { version = "1.11", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+mime_guess = "2.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+regex = "1.11"
+percent-encoding = "2.3"
+thiserror = "1.0"
+
+[dev-dependencies]
+tempfile = "3.13"
