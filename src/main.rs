@@ -1,3 +1,11 @@
+#![allow(
+    clippy::collapsible_if,
+    clippy::redundant_closure,
+    clippy::too_many_arguments,
+    clippy::type_complexity,
+    dead_code
+)]
+
 mod api;
 mod config;
 mod db;

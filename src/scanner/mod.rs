@@ -5,7 +5,7 @@ pub mod pdf;
 pub mod walk;
 
 use std::collections::HashSet;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::time::Instant;
 use tracing::{error, info};
 
@@ -195,9 +195,15 @@ pub async fn scan_library(
 
                             // Extract cover if found
                             if let Some(cover_entry) = meta.cover_image_path {
+                                let ext = Path::new(&cover_entry)
+                                    .extension()
+                                    .and_then(|s| s.to_str())
+                                    .unwrap_or("jpg")
+                                    .to_string();
+                                let cover_entry_clone = cover_entry.clone();
                                 let epub_path_clone = file_info.path.clone();
                                 if let Ok(cover_bytes) = tokio::task::spawn_blocking(move || {
-                                    epub::extract_epub_entry(&epub_path_clone, &cover_entry)
+                                    epub::extract_epub_entry(&epub_path_clone, &cover_entry_clone)
                                 })
                                 .await
                                 .unwrap_or_else(|_| {
@@ -205,10 +211,6 @@ pub async fn scan_library(
                                         "Cover not found".to_string(),
                                     ))
                                 }) {
-                                    let ext = Path::new(&cover_entry)
-                                        .extension()
-                                        .and_then(|s| s.to_str())
-                                        .unwrap_or("jpg");
                                     let cover_filename = format!("book_{}.{}", book_id, ext);
                                     let cover_dest = covers_dir.join(&cover_filename);
                                     if std::fs::write(&cover_dest, &cover_bytes).is_ok() {

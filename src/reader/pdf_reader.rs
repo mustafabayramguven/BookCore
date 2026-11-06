@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
 
-use crate::error::{AppError, AppResult};
+use crate::error::AppResult;
 
 pub enum PdfStreamResponse {
     Full {
