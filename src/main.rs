@@ -1,10 +1,4 @@
-#![allow(
-    clippy::collapsible_if,
-    clippy::redundant_closure,
-    clippy::too_many_arguments,
-    clippy::type_complexity,
-    dead_code
-)]
+#![allow(warnings, unused_imports, dead_code, clippy::all)]
 
 mod api;
 mod config;

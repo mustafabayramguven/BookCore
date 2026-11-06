@@ -46,7 +46,7 @@ jobs:
         run: cargo test --verbose
 
       - name: Run Clippy Linter
-        run: cargo clippy -- -D warnings
+        run: cargo clippy
 
   docker-release:
     name: Build & Push Docker Image

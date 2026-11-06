@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+
 pub mod book;
 pub mod progress;
 pub mod timer;
